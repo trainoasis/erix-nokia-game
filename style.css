@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #2a2a2a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Press Start 2P', monospace;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#game-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+#screen-frame {
+  position: relative;
+  background: #c7cf54;
+  border: 8px solid #4a4a3a;
+  border-radius: 10px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.15), 0 4px 20px rgba(0,0,0,0.5);
+  padding: 6px;
+  image-rendering: pixelated;
+}
+
+#hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #3a3a2a;
+  background: #b8c048;
+  border-bottom: 2px solid #a0a840;
+}
+
+#hud-lives { color: #5a3a2a; letter-spacing: 2px; }
+
+#game-canvas {
+  display: block;
+  width: calc(53 * 6px * 2.5);   /* 795px — 2.5x native on desktop */
+  height: calc(40 * 6px * 2.5);  /* 600px */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Overlay for menus / messages */
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(199, 207, 84, 0.92);
+  z-index: 10;
+}
+#overlay.hidden { display: none; }
+
+#overlay-text {
+  font-size: 22px;
+  color: #3a3a2a;
+  text-align: center;
+  line-height: 1.8;
+  padding: 0 24px;
+}
+#overlay-sub {
+  margin-top: 16px;
+  font-size: 12px;
+  color: #5a5a3a;
+  text-align: center;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Name input */
+#overlay-input {
+  margin-top: 14px;
+}
+#overlay-input.hidden { display: none; }
+
+#name-input {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  padding: 8px 12px;
+  border: 3px solid #3a3a2a;
+  border-radius: 4px;
+  background: #d8df74;
+  color: #2a2a1a;
+  text-align: center;
+  outline: none;
+  width: 220px;
+}
+#name-input::placeholder { color: #8a8a5a; font-size: 11px; }
+#name-input:focus { border-color: #1a1a0a; background: #e0e880; }
+
+/* Leaderboard */
+#overlay-leaderboard {
+  margin-top: 14px;
+  font-size: 11px;
+  color: #3a3a2a;
+  text-align: left;
+  line-height: 2;
+  max-height: 200px;
+  overflow-y: auto;
+}
+#overlay-leaderboard.hidden { display: none; }
+
+.lb-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 8px;
+}
+.lb-rank { color: #5a5a3a; min-width: 28px; }
+.lb-name { flex: 1; }
+.lb-score { text-align: right; min-width: 60px; }
+
+/* D-Pad (mobile) */
+#dpad {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-top: 8px;
+}
+
+.dpad-mid {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.dpad-btn {
+  width: 56px;
+  height: 56px;
+  background: #555;
+  color: #ccc;
+  border: 2px solid #333;
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.dpad-btn:active { background: #777; }
+.dpad-center { width: 56px; height: 56px; }
+
+/* Mobile: show D-pad */
+@media (max-width: 850px), (hover: none) {
+  #dpad { display: flex; }
+}
+
+/* Tablets / small laptops */
+@media (max-width: 850px) {
+  #game-canvas {
+    width: calc(53 * 6px * 1.8);  /* ~572px */
+    height: calc(40 * 6px * 1.8); /* ~432px */
+  }
+  #hud { font-size: 11px; padding: 6px 10px; }
+  #overlay-text { font-size: 18px; }
+  #overlay-sub { font-size: 10px; }
+}
+
+/* Phones */
+@media (max-width: 500px) {
+  #game-canvas {
+    width: 95vw;
+    height: calc(95vw * 40 / 53);
+  }
+  #screen-frame { border-width: 4px; padding: 2px; }
+  #hud { font-size: 8px; padding: 4px 6px; }
+  #overlay-text { font-size: 13px; padding: 0 12px; }
+  #overlay-sub { font-size: 8px; }
+  .dpad-btn { width: 48px; height: 48px; font-size: 15px; }
+  .dpad-center { width: 48px; height: 48px; }
+}
