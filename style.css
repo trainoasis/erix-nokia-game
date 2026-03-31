@@ -46,15 +46,18 @@ html, body {
 #hud-lives { color: #5a3a2a; letter-spacing: 2px; }
 
 #hud-lb-btn {
-  font-family: inherit;
-  font-size: 14px;
-  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  background: transparent;
   border: 2px solid #5a5a3a;
   border-radius: 4px;
   color: #3a3a2a;
   cursor: pointer;
-  padding: 2px 8px;
+  padding: 3px 8px;
   line-height: 1;
+  margin: 0;
   -webkit-tap-highlight-color: transparent;
 }
 #hud-lb-btn:hover, #hud-lb-btn:active { background: #a8b038; }

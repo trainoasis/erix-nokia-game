@@ -290,7 +290,7 @@
     const isDrawing = trail.length > 0;
 
     if (!isDrawing) {
-      if (target === WALL) {
+      if (target === WALL || target === FILLED) {
         player.x = nx;
         player.y = ny;
         stoppedAtEdge = false;
