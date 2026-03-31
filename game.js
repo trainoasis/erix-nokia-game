@@ -51,6 +51,7 @@
   const nameInput   = document.getElementById('name-input');
   const overlayLB   = document.getElementById('overlay-leaderboard');
   const overlaySub  = document.getElementById('overlay-sub');
+  const hudLBBtn    = document.getElementById('hud-lb-btn');
 
   canvas.width  = CANVAS_W;
   canvas.height = CANVAS_H;
@@ -577,7 +578,7 @@
       for (let y = 0; y < ROWS; y++) {
         const c = grid[x][y];
         let color = null;
-        if (c === WALL || c === OUTER) color = C_WALL;
+        if (c === WALL) color = C_WALL;
         else if (c === TRAIL) color = C_TRAIL;
         else if (c === FILLED) color = C_FILLED;
         if (color) {
@@ -609,7 +610,7 @@
     hudLevel.textContent = 'LVL ' + (level + 1);
     const pct = totalPlayable > 0 ? Math.floor((filledCount / totalPlayable) * 100) : 0;
     const target = Math.floor(LEVELS[level].requiredPct * 100);
-    hudScore.textContent = score + '  ' + pct + '/' + target + '%  T:' + turns;
+    hudScore.textContent = score + '  ' + pct + '/' + target + '%  TURNS:' + turns;
     hudLives.textContent = '\u2665'.repeat(Math.max(0, lives));
   }
 
@@ -665,7 +666,27 @@
     }
   }
 
+  function toggleLeaderboard() {
+    if (state === 'paused') {
+      // Resume
+      state = 'playing';
+      hideOverlay();
+      startTick();
+      return;
+    }
+    if (state === 'playing') {
+      // Pause and show leaderboard
+      stopTick();
+      state = 'paused';
+      showOverlay('LEADERBOARD', 'Press ESC to resume', { showLB: true });
+    }
+  }
+
   function handleDirection(dir) {
+    if (state === 'paused') {
+      toggleLeaderboard(); // resume on any direction key
+      return;
+    }
     if (state === 'title' || state === 'enterName') return; // handled by Enter key
     if (state === 'levelComplete') {
       SFX.menuSelect();
@@ -690,6 +711,13 @@
 
   // Keyboard
   window.addEventListener('keydown', (e) => {
+    // Escape: toggle leaderboard pause
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      toggleLeaderboard();
+      return;
+    }
+
     // Enter key: used for name submission and screen transitions
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -730,6 +758,12 @@
         startLevel();
       }
     }
+  });
+
+  // Leaderboard button
+  hudLBBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    toggleLeaderboard();
   });
 
   // D-Pad (mobile)

@@ -45,6 +45,20 @@ html, body {
 
 #hud-lives { color: #5a3a2a; letter-spacing: 2px; }
 
+#hud-lb-btn {
+  font-family: inherit;
+  font-size: 14px;
+  background: none;
+  border: 2px solid #5a5a3a;
+  border-radius: 4px;
+  color: #3a3a2a;
+  cursor: pointer;
+  padding: 2px 8px;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+#hud-lb-btn:hover, #hud-lb-btn:active { background: #a8b038; }
+
 #game-canvas {
   display: block;
   width: calc(53 * 6px * 2.5);   /* 795px — 2.5x native on desktop */
