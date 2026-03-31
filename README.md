@@ -24,7 +24,6 @@ Mobile: use the on-screen D-pad or swipe gestures.
 - Edge-stop mechanic — line stops at boundaries, change direction to continue
 - Bonus lives for efficient play (25%+ fill in one move, or completing a level in 2 turns)
 - Leaderboard with player names, scores, and turn counts
-- Optional Supabase backend for shared online leaderboard (falls back to localStorage)
 - Mobile-friendly with touch controls
 
 ## Run locally
@@ -34,12 +33,6 @@ Open `index.html` in a browser, or:
 ```
 python3 -m http.server 8080
 ```
-
-## Online leaderboard (optional)
-
-1. Create a free project at [supabase.com](https://supabase.com)
-2. Run the SQL from `db.js` in the Supabase SQL editor
-3. Add your project URL and anon key to `db.js`
 
 ## Stack
 
