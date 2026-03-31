@@ -45,7 +45,7 @@ html, body {
 
 #hud-lives { color: #5a3a2a; letter-spacing: 2px; }
 
-#hud-lb-btn {
+#hud-lb-btn, #hud-mute-btn {
   -webkit-appearance: none;
   appearance: none;
   font-family: 'Press Start 2P', monospace;
@@ -55,12 +55,18 @@ html, body {
   border-radius: 4px;
   color: #3a3a2a;
   cursor: pointer;
-  padding: 3px 8px;
+  padding: 5px 8px;
   line-height: 1;
   margin: 0;
+  height: 28px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   -webkit-tap-highlight-color: transparent;
 }
-#hud-lb-btn:hover, #hud-lb-btn:active { background: #a8b038; }
+#hud-lb-btn:hover, #hud-lb-btn:active,
+#hud-mute-btn:hover, #hud-mute-btn:active { background: #a8b038; }
 
 #game-canvas {
   display: block;

@@ -1,6 +1,7 @@
 // Sound engine using Web Audio API — generates retro 8-bit sounds procedurally
 const SFX = (() => {
   let ctx = null;
+  let muted = localStorage.getItem('erix_muted') === '1';
 
   function getCtx() {
     if (!ctx) {
@@ -18,6 +19,7 @@ const SFX = (() => {
   window.addEventListener('pointerdown', unlock, { once: false });
 
   function playTone(freq, duration, type = 'square', volume = 0.15) {
+    if (muted) return;
     const c = getCtx();
     const osc = c.createOscillator();
     const gain = c.createGain();
@@ -42,6 +44,7 @@ const SFX = (() => {
       setTimeout(() => playTone(550, 0.15, 'square', 0.12), 120);
     },
     hit() {
+      if (muted) return;
       // Creepy 8-bit laughter — randomized each time
       const c = getCtx();
       const laughCount = 4 + Math.floor(Math.random() * 4); // 4-7 "ha"s
@@ -98,6 +101,14 @@ const SFX = (() => {
     },
     menuSelect() {
       playTone(660, 0.08, 'square', 0.1);
+    },
+    toggleMute() {
+      muted = !muted;
+      localStorage.setItem('erix_muted', muted ? '1' : '0');
+      return muted;
+    },
+    isMuted() {
+      return muted;
     }
   };
 })();

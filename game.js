@@ -52,6 +52,7 @@
   const overlayLB   = document.getElementById('overlay-leaderboard');
   const overlaySub  = document.getElementById('overlay-sub');
   const hudLBBtn    = document.getElementById('hud-lb-btn');
+  const hudMuteBtn  = document.getElementById('hud-mute-btn');
 
   canvas.width  = CANVAS_W;
   canvas.height = CANVAS_H;
@@ -771,6 +772,20 @@
         startLevel();
       }
     }
+  });
+
+  // Mute button
+  function updateMuteBtn() {
+    const on = '<svg width="16" height="16" viewBox="0 0 16 16"><polygon points="2,5 2,11 5,11 9,14 9,2 5,5" fill="#3a3a2a"/><path d="M11,4.5 Q14,8 11,11.5" stroke="#3a3a2a" stroke-width="1.5" fill="none"/><path d="M12.5,3 Q16.5,8 12.5,13" stroke="#3a3a2a" stroke-width="1.5" fill="none"/></svg>';
+    const off = '<svg width="16" height="16" viewBox="0 0 16 16"><polygon points="2,5 2,11 5,11 9,14 9,2 5,5" fill="#3a3a2a"/><line x1="11" y1="4" x2="15" y2="12" stroke="#3a3a2a" stroke-width="2"/><line x1="15" y1="4" x2="11" y2="12" stroke="#3a3a2a" stroke-width="2"/></svg>';
+    hudMuteBtn.innerHTML = SFX.isMuted() ? off : on;
+    hudMuteBtn.title = SFX.isMuted() ? 'Unmute' : 'Mute';
+  }
+  updateMuteBtn();
+  hudMuteBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    SFX.toggleMute();
+    updateMuteBtn();
   });
 
   // Leaderboard button
