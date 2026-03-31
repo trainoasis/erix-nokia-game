@@ -157,19 +157,19 @@ html, body {
   display: none;
   flex-direction: column;
   align-items: center;
-  gap: 0;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .dpad-mid {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 10px;
 }
 
 .dpad-btn {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   background: #555;
   color: #ccc;
   border: 2px solid #333;
@@ -182,7 +182,7 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 .dpad-btn:active { background: #777; }
-.dpad-center { width: 56px; height: 56px; }
+.dpad-center { width: 72px; height: 72px; }
 
 /* Mobile: show D-pad */
 @media (max-width: 850px), (hover: none) {
@@ -210,6 +210,6 @@ html, body {
   #hud { font-size: 8px; padding: 4px 6px; }
   #overlay-text { font-size: 13px; padding: 0 12px; }
   #overlay-sub { font-size: 8px; }
-  .dpad-btn { width: 48px; height: 48px; font-size: 15px; }
-  .dpad-center { width: 48px; height: 48px; }
+  .dpad-btn { width: 64px; height: 64px; font-size: 17px; }
+  .dpad-center { width: 64px; height: 64px; }
 }
