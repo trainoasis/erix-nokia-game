@@ -31,12 +31,12 @@
     { balls: 1, ballSpeed: 1, requiredPct: 0.72 },
     { balls: 2, ballSpeed: 1, requiredPct: 0.68 },
     { balls: 2, ballSpeed: 1, requiredPct: 0.75 },
-    { balls: 2, ballSpeed: 2, requiredPct: 0.70 },
     { balls: 3, ballSpeed: 1, requiredPct: 0.70 },
-    { balls: 3, ballSpeed: 2, requiredPct: 0.72 },
-    { balls: 3, ballSpeed: 2, requiredPct: 0.75 },
-    { balls: 4, ballSpeed: 2, requiredPct: 0.75 },
-    { balls: 4, ballSpeed: 2, requiredPct: 0.80 },
+    { balls: 3, ballSpeed: 1, requiredPct: 0.72 },
+    { balls: 4, ballSpeed: 1, requiredPct: 0.72 },
+    { balls: 4, ballSpeed: 1, requiredPct: 0.75 },
+    { balls: 5, ballSpeed: 1, requiredPct: 0.75 },
+    { balls: 5, ballSpeed: 1, requiredPct: 0.80 },
   ];
 
   // --- DOM refs ---
@@ -201,14 +201,20 @@
     trail = [];
     levelTurns = 0;
 
+    // Spawn positions: first ball always center, extras get progressively sketchier
+    const spawnSlots = [
+      { x: Math.floor(COLS / 2),     y: Math.floor(ROWS / 2) },      // center
+      { x: Math.floor(COLS * 0.25),  y: Math.floor(ROWS * 0.25) },   // top-left area
+      { x: Math.floor(COLS * 0.75),  y: Math.floor(ROWS * 0.75) },   // bottom-right area
+      { x: Math.floor(COLS * 0.75),  y: Math.floor(ROWS * 0.25) },   // top-right area
+      { x: Math.floor(COLS * 0.25),  y: Math.floor(ROWS * 0.75) },   // bottom-left area
+    ];
     balls = [];
-    const cx = Math.floor(COLS / 2);
-    const cy = Math.floor(ROWS / 2);
     for (let i = 0; i < def.balls; i++) {
-      const spread = 3;
+      const slot = spawnSlots[i % spawnSlots.length];
       balls.push({
-        x: cx + (i - Math.floor(def.balls / 2)) * spread,
-        y: cy + ((i % 2 === 0) ? -2 : 2),
+        x: slot.x + Math.floor(Math.random() * 3) - 1,
+        y: slot.y + Math.floor(Math.random() * 3) - 1,
         dx: (Math.random() < 0.5 ? 1 : -1),
         dy: (Math.random() < 0.5 ? 1 : -1),
       });
