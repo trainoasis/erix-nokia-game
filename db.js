@@ -28,8 +28,8 @@
 
 const DB = (() => {
   // ---- CONFIG: paste your Supabase credentials here ----
-  const SUPABASE_URL = '';   // e.g. 'https://xyz.supabase.co'
-  const SUPABASE_KEY = '';   // anon/public key
+  const SUPABASE_URL = 'https://xwvgryqituadmzsxryus.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Z-pmwiZe21xFNuiScA2mFw_rjH0KX6x';
   // -------------------------------------------------------
 
   const LB_KEY = 'erix_leaderboard';
