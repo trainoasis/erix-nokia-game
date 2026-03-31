@@ -72,12 +72,25 @@
       const row = document.createElement('div');
       row.className = 'lb-row';
       const t = entry.turns != null ? entry.turns + 'T' : '';
+      const dateStr = entry.created_at || entry.date;
+      const dateLabel = dateStr ? formatLeaderboardDate(dateStr) : '';
       row.innerHTML =
         '<span class="lb-rank">' + (i + 1) + '.</span>' +
         '<span class="lb-name">' + escHtml(entry.name || '???') + '</span>' +
-        '<span class="lb-score">' + entry.score + (t ? ' ' + t : '') + '</span>';
+        '<span class="lb-score">' + entry.score + (t ? ' ' + t : '') +
+        (dateLabel ? ' <span class="lb-date">' + dateLabel + '</span>' : '') + '</span>';
       overlayLB.appendChild(row);
     });
+  }
+
+  function formatLeaderboardDate(d) {
+    const dt = new Date(typeof d === 'number' ? d : d);
+    if (isNaN(dt)) return '';
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    const hh = String(dt.getHours()).padStart(2, '0');
+    const min = String(dt.getMinutes()).padStart(2, '0');
+    return dd + '.' + mm + ' ' + hh + ':' + min;
   }
 
   function escHtml(s) {

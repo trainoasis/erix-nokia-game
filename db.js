@@ -96,7 +96,7 @@ const DB = (() => {
         try {
           const { data, error } = await supabase()
             .from('leaderboard')
-            .select('name, score, turns')
+            .select('name, score, turns, created_at')
             .order('score', { ascending: false })
             .limit(MAX_LB);
           if (!error && data) return data;

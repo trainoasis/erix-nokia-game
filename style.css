@@ -144,6 +144,7 @@ html, body {
 .lb-rank { color: #5a5a3a; min-width: 28px; }
 .lb-name { flex: 1; }
 .lb-score { text-align: right; min-width: 60px; }
+.lb-date  { font-size: 8px; color: #8a8a6a; margin-left: 4px; }
 
 /* D-Pad (mobile) */
 #dpad {
