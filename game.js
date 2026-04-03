@@ -27,16 +27,16 @@
   const C_PLAYER  = '#1a1a0a';
 
   const LEVELS = [
-    { balls: 1, ballSpeed: 1, requiredPct: 0.65 },
-    { balls: 1, ballSpeed: 1, requiredPct: 0.72 },
-    { balls: 2, ballSpeed: 1, requiredPct: 0.68 },
-    { balls: 2, ballSpeed: 1, requiredPct: 0.75 },
-    { balls: 3, ballSpeed: 1, requiredPct: 0.70 },
-    { balls: 3, ballSpeed: 1, requiredPct: 0.72 },
-    { balls: 4, ballSpeed: 1, requiredPct: 0.72 },
-    { balls: 4, ballSpeed: 1, requiredPct: 0.75 },
-    { balls: 5, ballSpeed: 1, requiredPct: 0.75 },
-    { balls: 5, ballSpeed: 1, requiredPct: 0.80 },
+    { balls: 1, ballSpeed: 1, requiredPct: 0.65 },  // L1:  easy intro
+    { balls: 2, ballSpeed: 1, requiredPct: 0.65 },  // L2:  second ball
+    { balls: 2, ballSpeed: 1, requiredPct: 0.72 },  // L3:  higher target
+    { balls: 3, ballSpeed: 1, requiredPct: 0.68 },  // L4:  three balls
+    { balls: 3, ballSpeed: 1, requiredPct: 0.75 },  // L5:  tighter target
+    { balls: 4, ballSpeed: 1, requiredPct: 0.70 },  // L6:  four balls
+    { balls: 4, ballSpeed: 1, requiredPct: 0.75 },  // L7:  tighter
+    { balls: 5, ballSpeed: 1, requiredPct: 0.72 },  // L8:  five balls
+    { balls: 5, ballSpeed: 1, requiredPct: 0.78 },  // L9:  tough target
+    { balls: 6, ballSpeed: 1, requiredPct: 0.80 },  // L10: six balls, 80%
     // Bonus level 11: balls split every 5s
     { balls: 2, ballSpeed: 1, requiredPct: 0.75, ballSplit: true },
   ];
