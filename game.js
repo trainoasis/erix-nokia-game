@@ -68,17 +68,24 @@
       return;
     }
     overlayLB.classList.remove('hidden');
-    overlayLB.innerHTML = '<div style="text-align:center;margin-bottom:6px;font-size:10px;color:#5a5a3a;">TOP SCORES</div>';
+    overlayLB.innerHTML = '<div style="text-align:center;margin-bottom:6px;font-size:10px;color:#5a5a3a;">TOP SCORES</div>' +
+      '<div style="text-align:center;margin-bottom:8px;font-size:8px;color:#5a5a3a;line-height:1.4;">' +
+      'Points for area claimed. Bonus for big fills &amp; level completion.' +
+      '</div>';
     lb.forEach((entry, i) => {
       const row = document.createElement('div');
       row.className = 'lb-row';
       const t = entry.turns != null ? entry.turns + 'T' : '';
+      const lvl = entry.level ? 'L' + entry.level : '';
+      const hearts = entry.lives > 0 ? '\u2665'.repeat(entry.lives) : '';
       const dateStr = entry.created_at || entry.date;
       const dateLabel = dateStr ? formatLeaderboardDate(dateStr) : '';
       row.innerHTML =
         '<span class="lb-rank">' + (i + 1) + '.</span>' +
         '<span class="lb-name">' + escHtml(entry.name || '???') + '</span>' +
         '<span class="lb-score">' + entry.score + (t ? ' ' + t : '') +
+        (lvl ? ' ' + lvl : '') +
+        (hearts ? ' <span class="lb-hearts">' + hearts + '</span>' : '') +
         (dateLabel ? ' <span class="lb-date">' + dateLabel + '</span>' : '') + '</span>';
       overlayLB.appendChild(row);
     });
@@ -152,6 +159,40 @@
       'Solid, ' + name + '.',
     ];
     return msgs[Math.floor(Math.random() * msgs.length)];
+  }
+
+  // --- Hype messages for big plays ---
+  const HYPE_MSGS_BIG = [
+    'Bravo stari!', 'Ujebemti, lepa!', 'Fuck yeaaah!',
+    'omg omg omg', 'INSANE!', 'BEAST MODE!',
+  ];
+  const HYPE_MSGS_GOOD = [
+    'Niiice!', 'Lepo!', 'Sweet!', 'Dayum!', 'Solid!', 'GG!',
+  ];
+
+  let hypeText = null;  // { text, timer }
+
+  function showHype(msg) {
+    hypeText = { text: msg, timer: 60 }; // ~60 ticks visible
+  }
+
+  function pickRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function drawHype() {
+    if (!hypeText || hypeText.timer <= 0) { hypeText = null; return; }
+    hypeText.timer--;
+    const alpha = Math.min(1, hypeText.timer / 15); // fade out last 15 ticks
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = 'bold 18px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#3a3a2a';
+    ctx.fillText(hypeText.text, CANVAS_W / 2 + 1, CANVAS_H / 2 - 19);
+    ctx.fillStyle = '#c7cf54';
+    ctx.fillText(hypeText.text, CANVAS_W / 2, CANVAS_H / 2 - 20);
+    ctx.restore();
   }
 
   // --- Game state ---
@@ -377,7 +418,7 @@
     // or if a single fill covers >= 25% of playable area
     const fillPct = filledNow / totalPlayable;
     const earnedLife =
-      (level >= 4 && levelTurns <= 2 && filledCount / totalPlayable >= LEVELS[level].requiredPct) ||
+      (level >= 4 && levelTurns <= 2 && claimedCount() / totalPlayable >= LEVELS[level].requiredPct) ||
       (level >= 4 && fillPct >= 0.25);
 
     if (earnedLife && lives < 5) {
@@ -388,8 +429,18 @@
     updateHUD();
     SFX.fill();
 
-    if (filledCount / totalPlayable >= LEVELS[level].requiredPct) {
+    if (claimedCount() / totalPlayable >= LEVELS[level].requiredPct) {
+      // Level finished in 1 turn = one-shot
+      if (levelTurns === 1) {
+        showHype(pickRandom(HYPE_MSGS_BIG));
+      }
       levelComplete();
+    } else if (fillPct >= 0.25) {
+      // Massive single fill (25%+)
+      showHype(pickRandom(HYPE_MSGS_BIG));
+    } else if (fillPct >= 0.12) {
+      // Decent fill (12%+)
+      showHype(pickRandom(HYPE_MSGS_GOOD));
     }
   }
 
@@ -568,7 +619,7 @@
 
   async function showFinalScreen(won) {
     const name = getPlayerName();
-    if (name) await DB.addScore(name, score, turns);
+    if (name) await DB.addScore(name, score, turns, level + 1, lives);
 
     const msg = won ? winMessage() : gameOverMessage();
     showOverlay(
@@ -615,14 +666,26 @@
     ctx.fillRect(player.x * CELL, player.y * CELL, CELL, CELL);
     ctx.fillStyle = C_BG;
     ctx.fillRect(player.x * CELL + 2, player.y * CELL + 2, CELL - 4, CELL - 4);
+
+    drawHype();
   }
 
   // -------------------------------------------------------
   // HUD
   // -------------------------------------------------------
+  function claimedCount() {
+    // Count FILLED + interior WALL cells (trails count as claimed area)
+    let count = 0;
+    for (let x = 2; x < COLS - 2; x++)
+      for (let y = 2; y < ROWS - 2; y++)
+        if (grid[x][y] === FILLED || grid[x][y] === WALL) count++;
+    return count;
+  }
+
   function updateHUD() {
     hudLevel.textContent = 'LVL ' + (level + 1);
-    const pct = totalPlayable > 0 ? Math.floor((filledCount / totalPlayable) * 100) : 0;
+    const claimed = claimedCount();
+    const pct = totalPlayable > 0 ? Math.floor((claimed / totalPlayable) * 100) : 0;
     const target = Math.floor(LEVELS[level].requiredPct * 100);
     hudScore.textContent = score + '  ' + pct + '/' + target + '%  TURNS:' + turns;
     hudLives.textContent = '\u2665'.repeat(Math.max(0, lives));
@@ -666,7 +729,11 @@
   // -------------------------------------------------------
   function confirmNameAndProceed() {
     const val = nameInput.value.trim();
-    if (val) setPlayerName(val);
+    if (val.length < 3) {
+      nameInput.focus();
+      return;
+    }
+    setPlayerName(val);
 
     if (pendingAction) {
       const action = pendingAction;

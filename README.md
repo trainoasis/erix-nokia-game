@@ -28,12 +28,14 @@ Mobile: use the on-screen D-pad or swipe gestures.
 
 ## Run locally
 
-Open `index.html` in a browser, or:
+```
+npm install
+cp .env.example .env   # fill in your Supabase credentials
+npm start
+```
 
-```
-python3 -m http.server 8080
-```
+Then open http://localhost:3000.
 
 ## Stack
 
-Vanilla JS, HTML5 Canvas, CSS, Web Audio API. No build tools or dependencies.
+Vanilla JS, HTML5 Canvas, CSS, Web Audio API, Express, Supabase.

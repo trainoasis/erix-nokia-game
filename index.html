@@ -21,7 +21,7 @@
       <div id="overlay" class="hidden">
         <div id="overlay-text"></div>
         <div id="overlay-input" class="hidden">
-          <input id="name-input" type="text" maxlength="20" placeholder="Your name" autocomplete="off" />
+          <input id="name-input" type="text" maxlength="20" placeholder="Name (3+ chars)" minlength="3" autocomplete="off" />
         </div>
         <div id="overlay-leaderboard" class="hidden"></div>
         <div id="overlay-sub"></div>
@@ -37,7 +37,6 @@
       <button class="dpad-btn" id="btn-down" aria-label="Down">&#9660;</button>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="db.js"></script>
   <script src="sound.js"></script>
   <script src="game.js"></script>
