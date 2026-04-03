@@ -37,6 +37,8 @@
     { balls: 4, ballSpeed: 1, requiredPct: 0.75 },
     { balls: 5, ballSpeed: 1, requiredPct: 0.75 },
     { balls: 5, ballSpeed: 1, requiredPct: 0.80 },
+    // Bonus level 11: balls split every 5s
+    { balls: 2, ballSpeed: 1, requiredPct: 0.75, ballSplit: true },
   ];
 
   // --- DOM refs ---
@@ -207,6 +209,7 @@
   let tickTimer = null;
   let dyingTimer = 0;
   let pendingAction = null; // callback after name entry overlay
+  let splitTimer = null;    // ball split interval for bonus level
 
   // -------------------------------------------------------
   // Initialization
@@ -281,6 +284,28 @@
     state = 'playing';
     hideOverlay();
     startTick();
+
+    // Bonus level: ball split every 5 seconds
+    if (def.ballSplit) {
+      splitTimer = setInterval(() => {
+        if (state !== 'playing') return;
+        const newBalls = [];
+        for (const b of balls) {
+          // Find an empty cell near the ball for the clone
+          const offsets = [[1,0],[-1,0],[0,1],[0,-1]];
+          let sx = b.x, sy = b.y;
+          for (const [ox, oy] of offsets) {
+            const c = cellType(b.x + ox, b.y + oy);
+            if (c === EMPTY || c === -1) { sx = b.x + ox; sy = b.y + oy; break; }
+          }
+          // Only spawn if within playable area
+          if (sx >= 2 && sx < COLS - 2 && sy >= 2 && sy < ROWS - 2 && grid[sx][sy] === EMPTY) {
+            newBalls.push({ x: sx, y: sy, dx: -b.dx, dy: b.dy });
+          }
+        }
+        balls.push(...newBalls);
+      }, 5000);
+    }
   }
 
   // -------------------------------------------------------
@@ -293,6 +318,7 @@
 
   function stopTick() {
     if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+    if (splitTimer) { clearInterval(splitTimer); splitTimer = null; }
   }
 
   function gameTick() {
@@ -585,10 +611,11 @@
         finishGame(true);
       }, 600);
     } else {
-      showOverlay(
-        levelCompleteMessage() + '\nLevel ' + (level + 1) + ' done\n' + pct + '% filled in ' + levelTurns + ' turns\nScore: ' + score,
-        'Press any key'
-      );
+      let msg = levelCompleteMessage() + '\nLevel ' + (level + 1) + ' done\n' + pct + '% filled in ' + levelTurns + ' turns\nScore: ' + score;
+      if (level === LEVELS.length - 2) {
+        msg += '\n\nBONUS LEVEL!\nFast lines, but balls split!';
+      }
+      showOverlay(msg, 'Press any key');
     }
   }
 
@@ -743,7 +770,8 @@
     } else {
       // Title screen → start game
       SFX.menuSelect();
-      level = 0;
+      const startLvl = parseInt(new URLSearchParams(window.location.search).get('wlfdsl'));
+      level = (startLvl >= 1 && startLvl <= LEVELS.length) ? startLvl - 1 : 0;
       startLevel();
     }
   }
