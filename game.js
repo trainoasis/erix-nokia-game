@@ -69,24 +69,25 @@
     }
     overlayLB.classList.remove('hidden');
     overlayLB.innerHTML = '<div style="text-align:center;margin-bottom:6px;font-size:10px;color:#5a5a3a;">TOP SCORES</div>' +
-      '<div style="text-align:center;margin-bottom:8px;font-size:8px;color:#5a5a3a;line-height:1.4;">' +
+      '<div style="text-align:center;margin-bottom:8px;font-size:8px;color:#8a8a5a;line-height:1.4;">' +
       'Points for area claimed. Bonus for big fills &amp; level completion.' +
       '</div>';
     lb.forEach((entry, i) => {
       const row = document.createElement('div');
       row.className = 'lb-row';
       const t = entry.turns != null ? entry.turns + 'T' : '';
-      const lvl = entry.level ? 'L' + entry.level : '';
-      const hearts = entry.lives > 0 ? '\u2665'.repeat(entry.lives) : '';
+      const lvl = entry.level ? 'L' + entry.level : '-';
+      const hearts = entry.lives > 0 ? '\u2665'.repeat(entry.lives) : '-';
       const dateStr = entry.created_at || entry.date;
       const dateLabel = dateStr ? formatLeaderboardDate(dateStr) : '';
       row.innerHTML =
         '<span class="lb-rank">' + (i + 1) + '.</span>' +
         '<span class="lb-name">' + escHtml(entry.name || '???') + '</span>' +
-        '<span class="lb-score">' + entry.score + (t ? ' ' + t : '') +
-        (lvl ? ' ' + lvl : '') +
-        (hearts ? ' <span class="lb-hearts">' + hearts + '</span>' : '') +
-        (dateLabel ? ' <span class="lb-date">' + dateLabel + '</span>' : '') + '</span>';
+        '<span class="lb-pts">' + entry.score + '</span>' +
+        '<span class="lb-turns">' + t + '</span>' +
+        '<span class="lb-lvl">' + lvl + '</span>' +
+        '<span class="lb-hearts">' + hearts + '</span>' +
+        '<span class="lb-date">' + dateLabel + '</span>';
       overlayLB.appendChild(row);
     });
   }

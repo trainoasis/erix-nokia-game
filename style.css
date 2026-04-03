@@ -143,14 +143,17 @@ html, body {
 
 .lb-row {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 6px;
   padding: 0 8px;
+  align-items: baseline;
 }
-.lb-rank { color: #5a5a3a; min-width: 28px; }
-.lb-name { flex: 1; }
-.lb-score { text-align: right; min-width: 60px; }
-.lb-date  { font-size: 8px; color: #8a8a6a; margin-left: 4px; }
+.lb-rank   { color: #5a5a3a; min-width: 28px; }
+.lb-name   { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-pts    { text-align: right; min-width: 58px; }
+.lb-turns  { text-align: right; min-width: 36px; }
+.lb-lvl    { text-align: center; min-width: 24px; }
+.lb-hearts { text-align: center; min-width: 36px; color: #5a3a2a; }
+.lb-date   { font-size: 8px; color: #8a8a6a; min-width: 52px; text-align: right; }
 
 /* D-Pad (mobile) */
 #dpad {
