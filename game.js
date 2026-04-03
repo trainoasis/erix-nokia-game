@@ -203,7 +203,7 @@
   let player, balls, trail;
   let direction, queuedDirection;
   let stoppedAtEdge, lastAttemptedDir;
-  let lives, score, level, filledCount, totalPlayable;
+  let lives, score, level, totalPlayable;
   let turns, levelTurns;       // total turns + turns for current level
   let state; // 'title' | 'playing' | 'dying' | 'levelComplete' | 'gameOver' | 'won' | 'enterName'
   let tickTimer = null;
@@ -251,7 +251,6 @@
     for (let x = 2; x < COLS - 2; x++)
       for (let y = 2; y < ROWS - 2; y++)
         totalPlayable++;
-    filledCount = 0;
 
     player = { x: Math.floor(COLS / 2), y: 1 };
     direction = null;
@@ -523,7 +522,6 @@
       }
     }
 
-    filledCount += filledNow;
     score += filledNow * 10;
     if (filledNow > 100) score += filledNow * 5;
     return filledNow;
@@ -599,7 +597,7 @@
   function levelComplete() {
     stopTick();
     state = 'levelComplete';
-    const pct = Math.floor((filledCount / totalPlayable) * 100);
+    const pct = Math.floor((claimedCount() / totalPlayable) * 100);
     score += pct * 50;
 
     SFX.levelUp();
