@@ -37,8 +37,8 @@
     { balls: 5, ballSpeed: 1, requiredPct: 0.72 },  // L8:  five balls
     { balls: 5, ballSpeed: 1, requiredPct: 0.78 },  // L9:  tough target
     { balls: 6, ballSpeed: 1, requiredPct: 0.80 },  // L10: six balls, 80%
-    // Bonus level 11: balls split every 5s
-    { balls: 2, ballSpeed: 1, requiredPct: 0.75, ballSplit: true },
+    // Bonus level 11: same ball count as L10, but center ball splits every 20s
+    { balls: 6, ballSpeed: 1, requiredPct: 0.80, ballSplit: true },
   ];
 
   // --- DOM refs ---
@@ -283,6 +283,8 @@
         y: slot.y + Math.floor(Math.random() * 3) - 1,
         dx: (Math.random() < 0.5 ? 1 : -1),
         dy: (Math.random() < 0.5 ? 1 : -1),
+        // Mark the center ball as the splitter on bonus levels
+        splitter: def.ballSplit && i === 0,
       });
     }
 
@@ -291,26 +293,23 @@
     hideOverlay();
     startTick();
 
-    // Bonus level: ball split every 5 seconds
+    // Bonus level: the marked splitter ball spawns one clone every 20 seconds
     if (def.ballSplit) {
       splitTimer = setInterval(() => {
         if (state !== 'playing') return;
-        const newBalls = [];
-        for (const b of balls) {
-          // Find an empty cell near the ball for the clone
-          const offsets = [[1,0],[-1,0],[0,1],[0,-1]];
-          let sx = b.x, sy = b.y;
-          for (const [ox, oy] of offsets) {
-            const c = cellType(b.x + ox, b.y + oy);
-            if (c === EMPTY || c === -1) { sx = b.x + ox; sy = b.y + oy; break; }
-          }
-          // Only spawn if within playable area
-          if (sx >= 2 && sx < COLS - 2 && sy >= 2 && sy < ROWS - 2 && grid[sx][sy] === EMPTY) {
-            newBalls.push({ x: sx, y: sy, dx: -b.dx, dy: b.dy });
-          }
+        const splitter = balls.find(b => b.splitter);
+        if (!splitter) return;
+        // Find an empty cell near the splitter for the clone
+        const offsets = [[1,0],[-1,0],[0,1],[0,-1]];
+        let sx = splitter.x, sy = splitter.y;
+        for (const [ox, oy] of offsets) {
+          const c = cellType(splitter.x + ox, splitter.y + oy);
+          if (c === EMPTY || c === -1) { sx = splitter.x + ox; sy = splitter.y + oy; break; }
         }
-        balls.push(...newBalls);
-      }, 5000);
+        if (sx >= 2 && sx < COLS - 2 && sy >= 2 && sy < ROWS - 2 && grid[sx][sy] === EMPTY) {
+          balls.push({ x: sx, y: sy, dx: -splitter.dx, dy: splitter.dy, splitter: false });
+        }
+      }, 20000);
     }
   }
 
@@ -448,11 +447,9 @@
     turns++;
 
     // Bonus life: on level 5+ if you complete a level in <= 2 turns,
-    // or if a single fill covers >= 25% of playable area
+    // Bonus life only for epic single fills (>=25% of playable area), L6+
     const fillPct = filledNow / totalPlayable;
-    const earnedLife =
-      (level >= 4 && levelTurns <= 2 && claimedCount() / totalPlayable >= LEVELS[level].requiredPct) ||
-      (level >= 4 && fillPct >= 0.25);
+    const earnedLife = level >= 5 && fillPct >= 0.25;
 
     if (earnedLife && lives < 5) {
       lives++;
@@ -618,7 +615,7 @@
     } else {
       let msg = levelCompleteMessage() + '\nLevel ' + (level + 1) + ' done\n' + pct + '% filled in ' + levelTurns + ' turns\nScore: ' + score;
       if (level === LEVELS.length - 2) {
-        msg += '\n\nBONUS LEVEL!\nFast lines, but balls split!';
+        msg += '\n\nBONUS LEVEL!\nWatch the center ball - it splits every 20s!';
       }
       showOverlay(msg, 'Press any key');
     }
