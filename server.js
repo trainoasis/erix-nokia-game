@@ -12,7 +12,8 @@ const sb = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 // --- Simple in-memory rate limiter (per IP, 5 inserts/min) ---
 const rateMap = new Map();
 const RATE_WINDOW = 60_000;
-const RATE_MAX = 5;
+const RATE_MAX = 15;
+const LEADERBOARD_LIMIT = 100;
 
 function rateOk(ip) {
   const now = Date.now();
@@ -40,7 +41,7 @@ app.get('/api/leaderboard', async (_req, res) => {
     .from('leaderboard')
     .select('name, score, turns, level, lives, created_at')
     .order('score', { ascending: false })
-    .limit(20);
+    .limit(LEADERBOARD_LIMIT);
 
   if (error) return res.status(500).json({ error: 'Failed to fetch leaderboard' });
   res.json(data);
@@ -56,7 +57,7 @@ app.post('/api/leaderboard', async (req, res) => {
   if (typeof name !== 'string' || name.trim().length < 3 || name.trim().length > 20) {
     return res.status(400).json({ error: 'Invalid name' });
   }
-  if (!Number.isInteger(score) || score < 0 || score > 100_000) {
+  if (!Number.isInteger(score) || score < 0) {
     return res.status(400).json({ error: 'Invalid score' });
   }
   if (!Number.isInteger(turns) || turns < 0 || turns > 100_000) {

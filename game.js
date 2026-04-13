@@ -64,16 +64,23 @@
   function setPlayerName(name) { DB.setPlayerName(name); }
 
   async function renderLeaderboard() {
+    overlayLB.classList.remove('hidden');
+    overlayLB.innerHTML = '<div style="text-align:center;font-size:10px;color:#5a5a3a;">Loading leaderboard...</div>';
     const lb = await DB.getLeaderboard();
     if (lb.length === 0) {
-      overlayLB.classList.add('hidden');
+      overlayLB.innerHTML = '<div style="text-align:center;font-size:10px;color:#5a5a3a;">No scores yet.</div>';
       return;
     }
-    overlayLB.classList.remove('hidden');
-    overlayLB.innerHTML = '<div style="text-align:center;margin-bottom:6px;font-size:10px;color:#5a5a3a;">TOP SCORES</div>' +
-      '<div style="text-align:center;margin-bottom:8px;font-size:8px;color:#8a8a5a;line-height:1.4;">' +
-      'Points for area claimed. Bonus for big fills &amp; level completion.' +
+    overlayLB.innerHTML =
+      '<div class="lb-header">' +
+        '<span class="lb-title" tabindex="0">TOP SCORES<sup>*</sup></span>' +
+        '<div class="lb-tooltip">Points for area claimed. Bonus for big fills &amp; level completion.</div>' +
       '</div>';
+    const titleEl = overlayLB.querySelector('.lb-title');
+    titleEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      titleEl.parentElement.classList.toggle('show-tip');
+    });
     lb.forEach((entry, i) => {
       const row = document.createElement('div');
       row.className = 'lb-row';

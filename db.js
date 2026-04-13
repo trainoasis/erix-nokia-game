@@ -7,6 +7,25 @@ const DB = (() => {
   const NAME_KEY = 'erix_player_name';
   const MAX_LB = 20;
 
+  // --- Error toast ---
+  let toastTimer = null;
+  function showError(msg) {
+    const el = document.getElementById('error-toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.add('hidden'), 5000);
+  }
+
+  async function readErrorMessage(res) {
+    try {
+      const body = await res.json();
+      if (body && body.error) return body.error;
+    } catch {}
+    return 'HTTP ' + res.status;
+  }
+
   // --- localStorage helpers ---
   function loadLocal() {
     try { return JSON.parse(localStorage.getItem(LB_KEY)) || []; }
@@ -37,13 +56,19 @@ const DB = (() => {
 
       // Push to server
       try {
-        await fetch('/api/leaderboard', {
+        const res = await fetch('/api/leaderboard', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, score, turns, level, lives }),
         });
+        if (!res.ok) {
+          const msg = await readErrorMessage(res);
+          console.warn('Server insert failed:', res.status, msg);
+          showError('Score not saved: ' + msg);
+        }
       } catch (e) {
         console.warn('Server insert failed:', e);
+        showError('Score not saved: network error');
       }
     },
 
@@ -51,8 +76,12 @@ const DB = (() => {
       try {
         const res = await fetch('/api/leaderboard');
         if (res.ok) return await res.json();
+        const msg = await readErrorMessage(res);
+        console.warn('Server fetch failed:', res.status, msg);
+        showError('Leaderboard unavailable: ' + msg);
       } catch (e) {
         console.warn('Server fetch failed:', e);
+        showError('Leaderboard unavailable: network error');
       }
       // Fallback to localStorage
       return loadLocal();

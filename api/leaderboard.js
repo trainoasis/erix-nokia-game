@@ -2,10 +2,12 @@ const { createClient } = require('@supabase/supabase-js');
 
 const sb = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
+const LEADERBOARD_LIMIT = 100;
+
 // Simple in-memory rate limiter (resets on cold start, good enough)
 const rateMap = new Map();
 const RATE_WINDOW = 60_000;
-const RATE_MAX = 5;
+const RATE_MAX = 15;
 
 function rateOk(ip) {
   const now = Date.now();
@@ -22,7 +24,7 @@ module.exports = async (req, res) => {
       .from('leaderboard')
       .select('name, score, turns, level, lives, created_at')
       .order('score', { ascending: false })
-      .limit(20);
+      .limit(LEADERBOARD_LIMIT);
 
     if (error) return res.status(500).json({ error: 'Failed to fetch leaderboard' });
     return res.json(data);
@@ -37,7 +39,7 @@ module.exports = async (req, res) => {
     if (typeof name !== 'string' || name.trim().length < 3 || name.trim().length > 20) {
       return res.status(400).json({ error: 'Invalid name' });
     }
-    if (!Number.isInteger(score) || score < 0 || score > 100_000) {
+    if (!Number.isInteger(score) || score < 0) {
       return res.status(400).json({ error: 'Invalid score' });
     }
     if (!Number.isInteger(turns) || turns < 0 || turns > 100_000) {
