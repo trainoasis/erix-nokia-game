@@ -102,6 +102,11 @@ const SFX = (() => {
     menuSelect() {
       playTone(660, 0.08, 'square', 0.1);
     },
+    split() {
+      // Quick two-tone chirp: one ball becoming two
+      playTone(520, 0.05, 'square', 0.12);
+      setTimeout(() => playTone(780, 0.07, 'square', 0.12), 45);
+    },
     toggleMute() {
       muted = !muted;
       localStorage.setItem('erix_muted', muted ? '1' : '0');

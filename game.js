@@ -24,6 +24,7 @@
   const C_TRAIL   = '#6a6a3a';
   const C_FILLED  = '#8a9a30';
   const C_BALL    = '#3a3a2a';
+  const C_SPLITTER = '#d62020';
   const C_PLAYER  = '#1a1a0a';
 
   // LEVELS is defined in levels.js and loaded before this script.
@@ -263,6 +264,7 @@
       { x: Math.floor(COLS * 0.25),  y: Math.floor(ROWS * 0.75) },   // bottom-left area
     ];
     balls = [];
+    const splittingBallCount = def.splittingBallCount || 0;
     for (let i = 0; i < def.ballCount; i++) {
       const slot = spawnSlots[i % spawnSlots.length];
       balls.push({
@@ -270,8 +272,8 @@
         y: slot.y + Math.floor(Math.random() * 3) - 1,
         dx: (Math.random() < 0.5 ? 1 : -1),
         dy: (Math.random() < 0.5 ? 1 : -1),
-        // Mark the center ball as the splitter on bonus levels
-        splitter: def.ballSplittingEnabled && i === 0,
+        // The first N balls are marked as splitters on levels that use them
+        splitter: i < splittingBallCount,
       });
     }
 
@@ -280,23 +282,37 @@
     hideOverlay();
     startTick();
 
-    // Bonus level: the marked splitter ball spawns one clone every 20 seconds
-    if (def.ballSplittingEnabled) {
+    // Every splitIntervalMs, each ball flagged as a splitter tries to spawn a
+    // clone next to itself. Respects maxBallCount if set. If
+    // splittingClonesAlsoSplit is true, the clone is itself a splitter.
+    if (splittingBallCount > 0) {
+      const intervalMs = def.splitIntervalMs || 20000;
+      const clonesSplit = !!def.splittingClonesAlsoSplit;
+      const maxBalls = def.maxBallCount;
       splitTimer = setInterval(() => {
         if (state !== 'playing') return;
-        const splitter = balls.find(b => b.splitter);
-        if (!splitter) return;
-        // Find an empty cell near the splitter for the clone
-        const offsets = [[1,0],[-1,0],[0,1],[0,-1]];
-        let sx = splitter.x, sy = splitter.y;
-        for (const [ox, oy] of offsets) {
-          const c = cellType(splitter.x + ox, splitter.y + oy);
-          if (c === EMPTY || c === -1) { sx = splitter.x + ox; sy = splitter.y + oy; break; }
+        const splitters = balls.filter(b => b.splitter);
+        for (const splitter of splitters) {
+          if (maxBalls != null && balls.length >= maxBalls) break;
+          // Find an empty cell next to the splitter for the clone
+          const offsets = [[1,0],[-1,0],[0,1],[0,-1]];
+          let sx = splitter.x, sy = splitter.y;
+          for (const [ox, oy] of offsets) {
+            const c = cellType(splitter.x + ox, splitter.y + oy);
+            if (c === EMPTY || c === -1) { sx = splitter.x + ox; sy = splitter.y + oy; break; }
+          }
+          if (sx >= 2 && sx < COLS - 2 && sy >= 2 && sy < ROWS - 2 && grid[sx][sy] === EMPTY) {
+            balls.push({
+              x: sx,
+              y: sy,
+              dx: -splitter.dx,
+              dy: splitter.dy,
+              splitter: clonesSplit,
+            });
+            SFX.split();
+          }
         }
-        if (sx >= 2 && sx < COLS - 2 && sy >= 2 && sy < ROWS - 2 && grid[sx][sy] === EMPTY) {
-          balls.push({ x: sx, y: sy, dx: -splitter.dx, dy: splitter.dy, splitter: false });
-        }
-      }, 20000);
+      }, intervalMs);
     }
   }
 
@@ -601,8 +617,9 @@
       }, 600);
     } else {
       let msg = levelCompleteMessage() + '\nLevel ' + (level + 1) + ' done\n' + pct + '% filled in ' + levelTurns + ' turns\nScore: ' + score;
-      if (level === LEVELS.length - 2) {
-        msg += '\n\nBONUS LEVEL!\nWatch the center ball - it splits every 20s!';
+      const nextLevel = LEVELS[level + 1];
+      if (nextLevel && nextLevel.hypeMessage) {
+        msg += '\n\n' + nextLevel.hypeMessage;
       }
       showOverlay(msg, 'Press any key');
     }
@@ -671,7 +688,7 @@
     }
 
     for (const b of balls) {
-      ctx.fillStyle = C_BALL;
+      ctx.fillStyle = b.splitter ? C_SPLITTER : C_BALL;
       ctx.fillRect(b.x * CELL + 1, b.y * CELL + 1, CELL - 2, CELL - 2);
       ctx.fillStyle = C_BG;
       ctx.fillRect(b.x * CELL + 1, b.y * CELL + 1, 1, 1);
