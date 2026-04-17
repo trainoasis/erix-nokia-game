@@ -284,10 +284,10 @@
 
     // Every splitIntervalMs, each ball flagged as a splitter tries to spawn a
     // clone next to itself. Respects maxBallCount if set. If
-    // splittingClonesAlsoSplit is true, the clone is itself a splitter.
+    // clonesAlsoSplit is true, the clone is itself a splitter.
     if (splittingBallCount > 0) {
       const intervalMs = def.splitIntervalMs || 20000;
-      const clonesSplit = !!def.splittingClonesAlsoSplit;
+      const clonesSplit = !!def.clonesAlsoSplit;
       const maxBalls = def.maxBallCount;
       splitTimer = setInterval(() => {
         if (state !== 'playing') return;
@@ -538,8 +538,12 @@
   // Ball movement
   // -------------------------------------------------------
   function moveBalls() {
+    // ballSpeed may be fractional: 1.5 = always 1 step + 50% chance of a 2nd.
     const speed = LEVELS[level].ballSpeed;
-    for (let step = 0; step < speed; step++) {
+    const fullSteps = Math.floor(speed);
+    const extraStep = (speed - fullSteps) > Math.random() ? 1 : 0;
+    const totalSteps = fullSteps + extraStep;
+    for (let step = 0; step < totalSteps; step++) {
       for (const b of balls) {
         if (state !== 'playing') return;
         moveSingleBall(b);
