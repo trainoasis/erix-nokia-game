@@ -26,20 +26,7 @@
   const C_BALL    = '#3a3a2a';
   const C_PLAYER  = '#1a1a0a';
 
-  const LEVELS = [
-    { balls: 1, ballSpeed: 1, requiredPct: 0.65 },  // L1:  easy intro
-    { balls: 2, ballSpeed: 1, requiredPct: 0.65 },  // L2:  second ball
-    { balls: 2, ballSpeed: 1, requiredPct: 0.72 },  // L3:  higher target
-    { balls: 3, ballSpeed: 1, requiredPct: 0.68 },  // L4:  three balls
-    { balls: 3, ballSpeed: 1, requiredPct: 0.75 },  // L5:  tighter target
-    { balls: 4, ballSpeed: 1, requiredPct: 0.70 },  // L6:  four balls
-    { balls: 4, ballSpeed: 1, requiredPct: 0.75 },  // L7:  tighter
-    { balls: 5, ballSpeed: 1, requiredPct: 0.72 },  // L8:  five balls
-    { balls: 5, ballSpeed: 1, requiredPct: 0.78 },  // L9:  tough target
-    { balls: 6, ballSpeed: 1, requiredPct: 0.80 },  // L10: six balls, 80%
-    // Bonus level 11: same ball count as L10, but center ball splits every 20s
-    { balls: 6, ballSpeed: 1, requiredPct: 0.80, ballSplit: true },
-  ];
+  // LEVELS is defined in levels.js and loaded before this script.
 
   // --- DOM refs ---
   const canvas      = document.getElementById('game-canvas');
@@ -276,7 +263,7 @@
       { x: Math.floor(COLS * 0.25),  y: Math.floor(ROWS * 0.75) },   // bottom-left area
     ];
     balls = [];
-    for (let i = 0; i < def.balls; i++) {
+    for (let i = 0; i < def.ballCount; i++) {
       const slot = spawnSlots[i % spawnSlots.length];
       balls.push({
         x: slot.x + Math.floor(Math.random() * 3) - 1,
@@ -284,7 +271,7 @@
         dx: (Math.random() < 0.5 ? 1 : -1),
         dy: (Math.random() < 0.5 ? 1 : -1),
         // Mark the center ball as the splitter on bonus levels
-        splitter: def.ballSplit && i === 0,
+        splitter: def.ballSplittingEnabled && i === 0,
       });
     }
 
@@ -294,7 +281,7 @@
     startTick();
 
     // Bonus level: the marked splitter ball spawns one clone every 20 seconds
-    if (def.ballSplit) {
+    if (def.ballSplittingEnabled) {
       splitTimer = setInterval(() => {
         if (state !== 'playing') return;
         const splitter = balls.find(b => b.splitter);
@@ -459,7 +446,7 @@
     updateHUD();
     SFX.fill();
 
-    if (claimedCount() / totalPlayable >= LEVELS[level].requiredPct) {
+    if (claimedCount() / totalPlayable >= LEVELS[level].requiredPercentage) {
       // Level finished in 1 turn = one-shot
       if (levelTurns === 1) {
         showHype(pickRandom(HYPE_MSGS_BIG));
@@ -716,7 +703,7 @@
     hudLevel.textContent = 'LVL ' + (level + 1);
     const claimed = claimedCount();
     const pct = totalPlayable > 0 ? Math.floor((claimed / totalPlayable) * 100) : 0;
-    const target = Math.floor(LEVELS[level].requiredPct * 100);
+    const target = Math.floor(LEVELS[level].requiredPercentage * 100);
     hudScore.textContent = score + '  ' + pct + '/' + target + '%  TURNS:' + turns;
     hudLives.textContent = '\u2665'.repeat(Math.max(0, lives));
   }
